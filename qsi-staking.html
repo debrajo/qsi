@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
+    integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+
+<h1 id="title">Staking page for</h1>
+<h2 id="title">QDF and 347 (qsi.xmint.io)</h2>
+<br />
+<div class="container">
+    <div class="row">
+        <!-- three column display, col 1 blank to provide proportions for width of other two columns -->
+        <div class="col-sm-2 col-md-2"></div>
+        <div class="col-sm-4 col-md-4">
+            <!-- Duration Checkbox grouping -->
+            <div id="tokenID">
+            </div>
+            <!-- Amount to Stake grouping -->
+            <label for="amount" class="form-label bold ">Amount to Stake</label>
+            <input type="text" id="amount" name="amount" class='form-control' style="width: 75%">
+            <!-- Duration Checkbox grouping -->
+            <div id="durationID">
+            </div>
+            <!-- Error Message display -->
+            <div id="dispError">
+                <p id="showError" class="showError"></p>
+            </div>
+
+            <button onClick="onClick()" target="_top" class='btn btn-light'>CALCULATE!</button>
+        </div>
+        <div class="col-sm-4 col-md-4">
+            <p>Estimate Interested based on selected values</p>
+            <div id="result">
+                <p id="show"></p>
+            </div>
+            <p>To realize these estimated yield values, scan the following QR Code and transfer your selected token into
+                this new trustline</p>
+            <div id="result">
+                <p style="text-align:left;">Scan on <a href="https://lobstr.co" target="_blank">Lobstr.co</a> or <a
+                        href="https://scopuly.com/" target="_blank">Scopuly.com</a> mobile wallet to accept QDF
+                    trustline. <a href="https://youtu.be/H1AikBLrEM8" target="_blank">Video tutorial</a>.</p>
+                <!-- Staking token QR CODE-->
+                <p id="showToken"> </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+
+    //  ERROR TO DISPLAY WHEN FIELD IS NOT PASS VALIDATION
+    const errorToken = "Token to Stake is a required field.<br />";
+    const errorAmount = "Amount to Stake is a required field.<br />";
+    const errorDuration = "Duration is a required field.<br />";
+
+    const durationItems =
+        [{ "id": "durationOne", "desc": "30 Days @ 5%", "value": "1", "percent": "5", "idName": "duration" }
+            , { "id": "durationThree", "desc": "3 Months @ 8%", "value": "3", "percent": "8", "idName": "duration" }
+            , { "id": "durationSix", "desc": "6 Months @ 12%", "value": "6", "percent": "12", "idName": "duration" }
+            , { "id": "durationTwelve", "desc": "1 Year @ 20%", "value": "12", "percent": "20", "idName": "duration" }
+        ];
+
+    //  347 , qdf
+    const tokenItems = [
+        {
+            "token": "QDF", "desc": "QDF", "value": "QDF", "idName": "QDF", "urlList":
+                [{ "duration": "1", "url": "./images/QDF.png" }
+                    , { "duration": "3", "url": "./images/QDF.png" }
+                    , { "duration": "6", "url": "./images/QDF.png" }
+                    , { "duration": "12", "url": "./images/QDF.png" },]
+        },
+        {
+            "token": "347", "desc": "347", "value": "347", "idName": "347", "urlList":
+                [{ "duration": "1", "url": "./images/347.png" }
+                    , { "duration": "3", "url": "./images/347.png" }
+                    , { "duration": "6", "url": "./images/347.png" }
+                    , { "duration": "12", "url": "./images/347.png" },]
+        }
+
+    ]
+
+    createFields();
+    /** 
+     * Setup the two dynamic radiobuttons for Duration / Token using
+     * html document objects 
+     */
+    function createFields() {
+        // BUILD TOKEN RADIO BUTTONS
+        var tokenID = document.getElementById('tokenID')
+        var tokenLabel = document.createElement('label');
+        tokenLabel.classList.add('form-check-label');
+        tokenLabel.classList.add('bold');
+        tokenLabel.setAttribute("for", tokenItems[0].idName);
+        tokenLabel.innerHTML = "Token To Stake";
+        tokenID.appendChild(tokenLabel)
+        tokenItems.forEach((row, i) => {
+            let div = document.createElement('div');
+            div.classList.add('form-check');
+            div.setAttribute("id", row.idName);
+            let labelValue = document.createElement('label');
+            labelValue.classList.add('form-check-label');
+            labelValue.setAttribute("for", row.idName);
+            labelValue.innerHTML = row.desc;
+            let inputValue = document.createElement('input');
+            inputValue.classList.add('form-check-input')
+            inputValue.type = "radio";
+            inputValue.name = 'token';
+            inputValue.id = row.idName;
+            inputValue.value = row.value;
+            div.appendChild(inputValue);
+            div.appendChild(labelValue);
+            tokenID.appendChild(div);
+        });
+
+        // BUILD DURATION RADIO BUTTONS
+        var durationID = document.getElementById('durationID')
+        var durationLabel = document.createElement('label');
+        durationLabel.classList.add('form-check-label');
+        durationLabel.classList.add('bold');
+        durationLabel.setAttribute("for", durationItems[0].idName);
+        durationLabel.innerHTML = "Duration";
+        durationID.appendChild(durationLabel)
+        durationItems.forEach((row, i) => {
+            let div = document.createElement('div');
+            div.classList.add('form-check');
+            div.setAttribute("id", row.idName);
+            let labelValue = document.createElement('label');
+            labelValue.classList.add('form-check-label');
+            labelValue.setAttribute("for", row.idName);
+            labelValue.innerHTML = row.desc;
+            let inputValue = document.createElement('input');
+            inputValue.classList.add('form-check-input')
+            inputValue.type = "radio";
+            inputValue.name = 'duration';
+            inputValue.id = row.id;
+            inputValue.value = i;
+            div.appendChild(inputValue);
+            div.appendChild(labelValue);
+            durationID.appendChild(div);
+        });
+    }
+    /**
+     * Compound Interest Formula written based on amount / payments (months) / interest 
+     * CI = P*(1 + R/n) (nt) – P
+     * https://www.wikihow.com/Calculate-Interest
+     * https://codereview.stackexchange.com/questions/204693/javascript-interest-rate-calculator
+     */
+    function calculateInterest(amount, payments, interest) {
+        var total = amount;
+        for (var i = 1; i <= payments; i++) {
+            var percent = total * interest;
+            total = total += percent;
+        }
+        return '$' + total.toFixed(2);
+    }
+    /**
+     * Based on token and duration, retrieve the staking QR Code
+     * as determined by tokenItems setup
+     */
+    function getStakingImage(token, duration) {
+        let tokenItem = tokenItems.find(o => o.token === token);
+        let durationItem = tokenItem.urlList.find(o => o.duration === duration);
+        return durationItem.url;
+
+    }
+    /** 
+     * Performs the field input validation, ensuring fields have input
+     * and calculates compound interest and sets the document html objects
+     * to display the interest and staking URL
+    */
+    function onClick() {
+        // CLEAR ALL SHOW RESULT IDs
+        let paraError = document.getElementById('showError');
+        paraError.innerHTML = "";
+        let para = document.getElementById('show');
+        para.innerHTML = ""
+        let parmURL = document.getElementById('showToken');
+        parmURL.innerHTML = ""
+
+        // CLEAR ERROR MESSAGES
+        let errorMsg = "";
+
+        // SET VARIABLES NEEDED FROM FIELD INPUT FOR CALCULATIONS
+        let duration = null;
+        let percent = null;
+        let amount = null;
+        let token = null;
+
+        // FIELD VALIDATION CHECKING ROUTINES
+        /* TOKEN: Check if  Token selected */
+        let ele = document.getElementsByName('token');
+        for (i = 0; i < ele.length; i++) {
+            if (ele[i].checked) {
+                token = ele[i].value;
+            }
+        }
+        if (token === null) {
+            errorMsg += errorToken;
+        }
+
+        /* AMOUNT: Check that an amount was entered */
+        amount = document.getElementById('amount').value;
+        if (amount === "" || amount === null) {
+            errorMsg += errorAmount;
+        }
+
+        // DURATION: walk the radio button list to determine if duration is selected
+        ele = document.getElementsByName('duration');
+        for (i = 0; i < ele.length; i++) {
+            if (ele[i].checked) {
+                duration = durationItems[i].value;
+                percent = durationItems[i].percent;
+            }
+        }
+        if (duration === null) {
+            errorMsg += errorDuration;
+        }
+
+        //  validation done, show error if exists 
+        if (errorMsg != "") {
+            paraError.innerHTML = errorMsg;
+            return false;
+        }
+
+        // SET YIELD AMOUNT
+        var percentValue = percent / 100;
+        var amountValue = parseFloat(amount);
+        var durationValue = parseInt(duration);
+        para.innerHTML = calculateInterest(amountValue, durationValue, percentValue);
+        para.className = "show";
+
+        // SET STAKING TOKEN URL
+        parmURL.innerHTML = '<img src=' + getStakingImage(token, duration) + ' alt="QDF Trustline">'
+    }
+
+</script>
+<style>
+
+    h1,
+    h2 {
+        text-align: center;
+    }
+
+    #title {
+        font-family: Verdana;
+        text-transform: uppercase;
+        font-size: 16px;
+        font-weight: bolder;
+        /** color: white;  */
+    }
+
+    .bold {
+        font-weight: bolder;
+        color: black;
+    }
+
+    .showError {
+        font-weight: bolder;
+        color: red;
+        font-size: 16px;
+    }
+
+    .btn,
+    .btn-light {
+        margin-top: 10px;
+    }
+
+    #result {
+        margin-top: 10px;
+        font-size: 16px;
+        text-align: center;
+    }
+
+    .wrap {
+        position: relative;
+        left: 45%;
+    }
+
+    .show {
+        animation: fadeIn 1.8s ease-in 0.2s 1 normal both running;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+
+        to {
+            display: block;
+            opacity: 1;
+        }
+    }
+
+    .test {
+        font-size: 60px;
+    }
+</style>
+
+</html>
